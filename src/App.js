@@ -1,35 +1,45 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import {
   createBrowserRouter,
   RouterProvider,
+  useRoutes,
   useSearchParams,
 } from "react-router-dom";
 
 import HomePage from "./components/HomePage";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
+import { Loading } from "./helper";
+import { setBookList, setBooksLoading } from "./redux/data_slice";
 
 const App = () => {
   const Layout = () => {
+    const dispacth = useDispatch();
     const [fetchedBooks, setFetchedBooks] = useState({});
-    const [searchBySubject, setSearchBySubject] = useState("");
-    const [loading, setLoading] = useState(true);
-
     const [queryParameters] = useSearchParams();
     const queryValue = queryParameters.get("search");
     const page = queryParameters.get("page") || 0;
+
+    const loading = useSelector((state) => state.books_list.loading);
+
     const getBooksAPI = async () => {
-      setLoading(true);
+      dispacth(setBooksLoading(true));
       try {
         const data_title = await axios.get(
           `https://openlibrary.org/search.json?q=${queryValue}&limit=10&offset=${
             page * 10
           }`
         );
-        console.log(data_title);
         setFetchedBooks(data_title.data.docs);
+        dispacth(
+          setBookList({
+            type: "Author_or_Title",
+            payload: data_title.data.docs,
+          })
+        );
         if (data_title.data.docs.length == 0) {
           const data_author = await axios.get(
             `https://openlibrary.org/search.json?author=${queryValue}&limit=10&offset=${
@@ -37,9 +47,16 @@ const App = () => {
             }`
           );
           setFetchedBooks(data_author.data.docs);
+          dispacth(
+            setBookList({
+              type: "Author_or_Title",
+              payload: data_author.data.docs,
+            })
+          );
         }
-        setLoading(false);
+        dispacth(setBooksLoading(false));
       } catch (error) {
+        dispacth(setBooksLoading(false));
         console.log(error.message);
       }
     };
@@ -49,7 +66,6 @@ const App = () => {
         getBooksAPI();
       }
     }, [page]);
-    console.log(loading);
     return (
       <div className="flex bg-gray-500">
         <div className="w-96 h-screen sticky top-0">
@@ -60,34 +76,7 @@ const App = () => {
           {!loading ? (
             <HomePage fetchedBooks={fetchedBooks} getBooksAPI={getBooksAPI} />
           ) : (
-            <div className="px-10">
-              <div
-                role="status"
-                class="w-full p-4 space-y-4 border border-gray-200 divide-y divide-gray-200 rounded shadow animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
-              >
-                <div class="flex items-center justify-between">
-                  <div>
-                    <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24 mb-2.5"></div>
-                    <div class="w-32 h-2 bg-gray-200 rounded-full dark:bg-gray-700"></div>
-                  </div>
-                  <div>
-                    <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24 mb-2.5"></div>
-                    <div class="w-32 h-2 bg-gray-200 rounded-full dark:bg-gray-700"></div>
-                  </div>
-
-                  <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-700 w-12"></div>
-                  <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-700 w-12"></div>
-                </div>
-                <LoadingComponent />
-                <LoadingComponent />
-                <LoadingComponent />
-                <LoadingComponent />
-                <LoadingComponent />
-                <LoadingComponent />
-                <LoadingComponent />
-                <span class="sr-only">Loading...</span>
-              </div>
-            </div>
+            <Loading />
           )}
         </div>
       </div>
@@ -99,10 +88,10 @@ const App = () => {
       path: "/",
       element: <Layout />,
       children: [
-        // {
-        //   path: "",
-        //   element: <Contact />,
-        // },
+        {
+          path: "/subject/:subject",
+          element: <HomePage />,
+        },
       ],
     },
   ]);
@@ -111,21 +100,3 @@ const App = () => {
 };
 
 export default App;
-
-const LoadingComponent = () => {
-  return (
-    <div class="flex items-center justify-between pt-5">
-      <div>
-        <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24 mb-2.5"></div>
-        <div class="w-32 h-2 bg-gray-200 rounded-full dark:bg-gray-700"></div>
-      </div>
-      <div>
-        <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24 mb-2.5"></div>
-        <div class="w-32 h-2 bg-gray-200 rounded-full dark:bg-gray-700"></div>
-      </div>
-
-      <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-700 w-12"></div>
-      <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-700 w-12"></div>
-    </div>
-  );
-};

@@ -1,18 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
+  const [searchSubject, setSearchSubject] = useState("");
+
+  const navigate = useNavigate();
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    navigate(`/subject/${searchSubject}`);
+  };
+
   return (
     <div className="w-96 bg-slate-900 h-screen px-6 pt-5">
-      <h1 className="font-bold text-3xl mb-2 text-white">Trending Subjects</h1>
-      <form class="flex items-center">
-        <label for="simple-search" class="sr-only">
+      <h1 className="font-bold text-3xl mb-4 text-white">Trending Subjects</h1>
+      <form className="flex items-center" onSubmit={handleSearchSubmit}>
+        <label for="simple-search" className="sr-only">
           Search
         </label>
-        <div class="relative w-full">
-          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+        <div className="relative w-full">
+          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
             <svg
               aria-hidden="true"
-              class="w-5 h-5 text-gray-500 dark:text-gray-400"
+              className="w-5 h-5 text-gray-500 dark:text-gray-400"
               fill="currentColor"
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"
@@ -27,17 +37,18 @@ const Sidebar = () => {
           <input
             type="text"
             id="simple-search"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="Search"
             required
+            onChange={(e) => setSearchSubject(e.target.value)}
           />
         </div>
         <button
           type="submit"
-          class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          className="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           <svg
-            class="w-5 h-5"
+            className="w-5 h-5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -50,15 +61,25 @@ const Sidebar = () => {
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
             ></path>
           </svg>
-          <span class="sr-only">Search</span>
+          <span className="sr-only">Search</span>
         </button>
       </form>
       <ul className="max-w-md space-y-1 text-gray-500 list-none list-inside dark:text-gray-400 mt-2">
-        <li>Javascript</li>
-        <li>Harry potter</li>
-        <li>Indian History</li>
-        <li>Indian Philosophy</li>
-        <li>Western Philosophy</li>
+        <Link to={`/subject/javascript`}>
+          <li>Javascript</li>
+        </Link>
+        <Link to={`/subject/love`}>
+          <li>Love</li>
+        </Link>
+        <Link to={`/subject/history`}>
+          <li>History</li>
+        </Link>
+        <Link to={`/subject/philosophy`}>
+          <li>Philosophy</li>
+        </Link>
+        <Link to={`/subject/game`}>
+          <li>Game</li>
+        </Link>
       </ul>
     </div>
   );
